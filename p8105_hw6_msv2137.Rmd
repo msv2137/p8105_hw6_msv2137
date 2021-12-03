@@ -2,7 +2,7 @@
 title: "HW 6"
 author: "Malvika Venkataraman"
 date: "12/2/2021"
-output: html_document
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
@@ -47,7 +47,7 @@ birthweight %>%
   ggplot(aes(x = pred, y = resid)) + geom_point(alpha = .3) +
   labs(title = "Residuals vs. Fitted Values")
 ```
-One using length at birth and gestational age as predictors (main effects only)
+
 ```{r}
 cv_df = crossv_mc(birthweight, 100) %>%
   mutate(
