@@ -31,10 +31,10 @@ The are no missing values in this dataset.
 
 ## Model
 
-I'll propose for this problem using backward stepwise selection, with the step() function. 
+I'll propose a model for this problem using backward stepwise selection, with the step() function. 
 ```{r}
 model_init <- lm(bwt ~., data = birthweight)
-step(model_init, direction = "backward")
+step(model_init, direction = "backward") #type of selection
 ```
 This model selection approach starts with all predictors in the model. It then removes the the least significant predictor. It repeats this process until all non-significant predictors have been removed.
 
@@ -53,6 +53,7 @@ My final model includes the following predictors:
 * average number of cigarettes smoked per day during pregnancy
 
 ```{r}
+#final model
 model_back = lm(bwt ~ babysex + bhead + blength + delwt + fincome + 
     gaweeks + mheight + mrace + parity + ppwt + smoken, data = birthweight)
 ```
