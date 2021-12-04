@@ -157,6 +157,23 @@ bootstrap_log %>%
 
 Plot the distribution of your estimates, and describe these in words. 
 
+```{r}
+#plot of r squared
+boot_results %>%
+  ggplot(aes(x = r.squared)) +
+  geom_density() +
+  labs(title = "Distribution of R-Squared")
+```
+
+```{r}
+# plot of log(B0*B1)
+
+bootstrap_log %>%
+  ggplot(aes(x = log_var)) +
+  geom_density() +
+  labs(title = "Distribution of log(B_hat_0*B_hat_1)")
+```
+
 Using the 5000 bootstrap estimates, identify the 2.5% and 97.5% quantiles to provide a 95% confidence interval for r̂ 2 and log(β̂ 0∗β̂ 1). Note: broom::glance() is helpful for extracting r̂ 2 from a fitted regression, and broom::tidy() (with some additional wrangling) should help in computing log(β̂ 0∗β̂ 1).
 
 
