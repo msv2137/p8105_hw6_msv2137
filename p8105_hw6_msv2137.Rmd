@@ -107,9 +107,56 @@ lm(tmax ~ tmin, data = weather_df) %>%
 
 Use 5000 bootstrap samples and, for each bootstrap sample, produce estimates of these two quantities. 
 
+```{r}
+set.seed(1)
 
+boot_sample = function(df) {
+  sample_frac(weather_df, replace = T)
+}
 
+boot_strap =
+  tibble(
+    strap_number = 1:5000,
+    strap_sample = rerun(5000, boot_sample(weather_df))
+  )
 
-Plot the distribution of your estimates, and describe these in words. Using the 5000 bootstrap estimates, identify the 2.5% and 97.5% quantiles to provide a 95% confidence interval for r̂ 2 and log(β̂ 0∗β̂ 1). Note: broom::glance() is helpful for extracting r̂ 2 from a fitted regression, and broom::tidy() (with some additional wrangling) should help in computing log(β̂ 0∗β̂ 1).
+boot_results =
+  boot_strap %>%
+  mutate(
+    models = map(strap_sample, ~lm(tmax ~ tmin, data = .x)),
+    result_1 = map(models, broom::glance),
+    result_2 = map(models, broom::tidy)) %>%
+  select(strap_number, result_1, result_2) %>%
+  unnest(c(result_1, result_2), names_repair = "unique")
+```
+
+```{r}
+#r squared
+boot_results %>%
+  summarize(mean_r_sq = mean(r.squared))
+```
+```{r}
+# log(B0*B1)
+bootstrap_log =
+  boot_results %>%
+  select(strap_number, term, estimate) %>%
+  pivot_wider(
+    names_from = term,
+    values_from = estimate) %>%
+  rename("B0" = "(Intercept)",
+         "B1" = "tmin") %>%
+  mutate(
+    log_var = log(B0*B1)
+  )
+```
+
+```{r}
+bootstrap_log %>%
+  summarize(mean_log_var = mean(log_var))
+```
+
+Plot the distribution of your estimates, and describe these in words. 
+
+Using the 5000 bootstrap estimates, identify the 2.5% and 97.5% quantiles to provide a 95% confidence interval for r̂ 2 and log(β̂ 0∗β̂ 1). Note: broom::glance() is helpful for extracting r̂ 2 from a fitted regression, and broom::tidy() (with some additional wrangling) should help in computing log(β̂ 0∗β̂ 1).
 
 
