@@ -1,7 +1,7 @@
 ---
 title: "HW 6"
 author: "Malvika Venkataraman"
-date: "12/2/2021"
+date: "12/4/2021"
 output: github_document
 ---
 
@@ -15,7 +15,7 @@ library(modelr)
 
 ## Load and Clean Data
 ```{r}
-birthweight = read_csv("./birthweight.csv") %>%
+birthweight = read_csv("./data/birthweight.csv") %>%
   janitor::clean_names() %>%
   mutate(
     babysex = factor(babysex),
@@ -36,9 +36,10 @@ I'll propose for this problem using backward stepwise selection, with the step()
 model_init <- lm(bwt ~., data = birthweight)
 step(model_init, direction = "backward")
 ```
-This model selection approach starts with all predictors in the model. It then removes the the next least significant predictor. It repeats this process until all non-significant predictors have been removed.
+This model selection approach starts with all predictors in the model. It then removes the the least significant predictor. It repeats this process until all non-significant predictors have been removed.
 
 My final model includes the following predictors:
+
 * baby sex
 * baby head circumference
 * baby length
@@ -69,10 +70,11 @@ birthweight %>%
 ## Model Comparison
 
 I'll compare my model to two others: 
+
 * Main Effect Model: A model using length at birth and gestational age as predictors 
 * Interaction Model: One using head circumference, length, sex, and all interactions between these
 
-```{r}
+```{r, warning=FALSE}
 cv_df = crossv_mc(birthweight, 100) %>%
   mutate(
     train = map(train, as_tibble),
@@ -102,6 +104,7 @@ cv_df %>%
   ggplot(aes(x = model, y = rmse)) + geom_violin() +
   labs(title = "RMSE for Cross-Validated Models", x = "Model Type", y = "RMSE")
 ```
+
 The plot shows that the model made using backward stepwise selection has the lowest RMSE, and therefore is the best performing of the three, in terms of predicting baby weight. The interaction model has a slightly greater RMSE than the proposed model, however the inclusion of interaction terms would make it harder to interpret than the other models. The main effect model had the highest RMSE.
 
 # Problem 2
@@ -163,6 +166,7 @@ boot_results =
 boot_results %>%
   summarize(mean_r_sq = mean(r.squared))
 ```
+The mean R-squared estimate over all bootstrapped samples is `r boot_results %>% summarize(mean_r_sq = mean(r.squared))`
 
 ### log(β̂ 0∗β̂ 1) Estimate
 ```{r}
@@ -184,6 +188,8 @@ bootstrap_log =
 bootstrap_log %>%
   summarize(mean_log_var = mean(log_var))
 ```
+The mean log(β̂ 0∗β̂ ) estimate over all bootstrapped samples is `r bootstrap_log %>% summarize(mean_log_var = mean(log_var))`
+
 ## Plot of the Distribution of the Two Estimates
 
 ```{r}
@@ -193,7 +199,8 @@ boot_results %>%
   geom_density() +
   labs(title = "Distribution of R-Squared")
 ```
-The plot is centered around .91, 
+
+The plot is centered around .91, and it ranges approximately from .88 to .94. The distribution looks approximately Normal.
 
 ```{r}
 # plot of log(B0*B1)
@@ -204,8 +211,9 @@ bootstrap_log %>%
   labs(title = "Distribution of log(B_hat_0*B_hat_1)")
 ```
 
+The plot is centered around 2.01, and it ranges approximately from 1.9 to 2.09. The distribution looks approximately Normal.
+
 ## Confidence Intervals
-Using the 5000 bootstrap estimates, identify the 2.5% and 97.5% quantiles to provide a 95% confidence interval for r̂ 2 and log(β̂ 0∗β̂ 1).
 
 ### R Squared
 ```{r}
@@ -216,6 +224,7 @@ boot_results %>%
     ci_upper = quantile(r.squared, .975)
   )
 ```
+We are 95% confident that the true mean R-squared value lies between .89 and .93.
 
 ### log(β̂ 0∗β̂ 1)
 ```{r}
@@ -227,4 +236,4 @@ bootstrap_log %>%
     ci_upper = quantile(log_var, .975)
   )
 ```
-
+We are 95% confident that the true mean log(β̂0 * β̂1) lies between 1.96 and 2.06.
