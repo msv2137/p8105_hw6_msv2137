@@ -177,3 +177,21 @@ bootstrap_log %>%
 Using the 5000 bootstrap estimates, identify the 2.5% and 97.5% quantiles to provide a 95% confidence interval for r̂ 2 and log(β̂ 0∗β̂ 1). Note: broom::glance() is helpful for extracting r̂ 2 from a fitted regression, and broom::tidy() (with some additional wrangling) should help in computing log(β̂ 0∗β̂ 1).
 
 
+```{r}
+# r squared 95% CI
+boot_results %>%
+  summarize(
+    ci_lower = quantile(r.squared, .025),
+    ci_upper = quantile(r.squared, .975)
+  )
+```
+
+```{r}
+# log(B0*B1) 95% CI
+boot_results %>%
+  summarize(
+    ci_lower = quantile(log_var, .025),
+    ci_upper = quantile(log_var, .975)
+  )
+```
+
